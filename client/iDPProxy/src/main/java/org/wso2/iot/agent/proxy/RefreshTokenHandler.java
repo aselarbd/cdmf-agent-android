@@ -61,7 +61,7 @@ public class RefreshTokenHandler {
 
 	public void obtainNewAccessToken() {
 		if(Constants.DEBUG_ENABLED) {
-			Log.d(TAG, "Renewing tokens.");
+			Log.i(TAG, "Renewing tokens.");
 		}
 		RequestQueue queue =  null;
 		try {
@@ -77,7 +77,7 @@ public class RefreshTokenHandler {
 					@Override
 					public void onResponse(String response) {
 						if (Constants.DEBUG_ENABLED) {
-							Log.d(TAG, "Token renewal response: " + response);
+							Log.i(TAG, "Token renewal response: " + response);
 						}
 					}
 				},
@@ -139,6 +139,7 @@ public class RefreshTokenHandler {
 	 */
 	@SuppressLint("SimpleDateFormat")
 	private void processTokenResponse(String responseCode, String result) {
+		String methodName = "processTokenResponse -> ";
 		String refreshToken;
 		String accessToken;
 		int timeToExpireSecond;
@@ -149,6 +150,9 @@ public class RefreshTokenHandler {
 				accessToken = response.getString(Constants.ACCESS_TOKEN);
 				refreshToken = response.getString(Constants.REFRESH_TOKEN);
 				timeToExpireSecond = Integer.parseInt(response.getString(Constants.EXPIRE_LABEL));
+				Log.i(TAG, methodName+"Access Token: "+accessToken);
+				Log.i(TAG, methodName+"Refresh Token: "+refreshToken);
+				Log.i(TAG, methodName+"Time to expire second: "+timeToExpireSecond);
 				Token token = new Token();
 				long expiresOn = new Date().getTime()
 						+ (timeToExpireSecond - (100 - Constants.HttpClient.TOKEN_VALIDITY_PERCENTAGE) * timeToExpireSecond / 100) * 1000;
@@ -166,7 +170,7 @@ public class RefreshTokenHandler {
 				editor.apply();
 
 				if (Constants.DEBUG_ENABLED) {
-					Log.d(TAG, "Token expires on:" + token.getExpiresOn().toString());
+					Log.i(TAG, "Token expires on:" + token.getExpiresOn().toString());
 				}
 
 				identityProxy

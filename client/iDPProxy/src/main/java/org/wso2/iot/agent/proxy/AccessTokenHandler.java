@@ -168,6 +168,7 @@ public class AccessTokenHandler {
      * @param result       - Service result.
      */
     private void processTokenResponse(String responseCode, String result) {
+        String methodName = "processTokenResponse -> ";
         String refreshToken;
         String accessToken;
         long timeToExpireSecond;
@@ -180,6 +181,9 @@ public class AccessTokenHandler {
                     accessToken = response.getString(Constants.ACCESS_TOKEN);
                     refreshToken = response.getString(Constants.REFRESH_TOKEN);
                     timeToExpireSecond = Long.parseLong(response.getString(Constants.EXPIRE_LABEL));
+                    Log.i(TAG, methodName+"Access Token: "+accessToken);
+                    Log.i(TAG, methodName+"Refresh Token: "+refreshToken);
+                    Log.i(TAG, methodName+"Time to expire Second: "+refreshToken);
                     Token token = new Token();
                     long expiresOn = new Date().getTime()
                             + (timeToExpireSecond - (100 - Constants.HttpClient.TOKEN_VALIDITY_PERCENTAGE) * timeToExpireSecond / 100) * 1000;
@@ -198,7 +202,7 @@ public class AccessTokenHandler {
                     editor.apply();
 
                     if (Constants.DEBUG_ENABLED) {
-                        Log.d(TAG, "Token expires on:" + token.getExpiresOn().toString());
+                        Log.i(TAG, "Token expires on:" + token.getExpiresOn().toString());
                     }
 
                     identityProxy.receiveAccessToken(responseCode, Constants.SUCCESS_RESPONSE, token);

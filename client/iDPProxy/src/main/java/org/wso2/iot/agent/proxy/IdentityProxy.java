@@ -75,7 +75,7 @@ public class IdentityProxy implements CallBack {
     @Override
     public void receiveAccessToken(String status, String message, Token token) {
         if (Constants.DEBUG_ENABLED && token != null) {
-            Log.d(TAG, "Receive Access Token: " + token.getAccessToken());
+            Log.i(TAG, "Receive Access Token: " + token.getAccessToken());
         }
         IdentityProxy.token = token;
         apiAccessCallBack.onAPIAccessReceive(status);
@@ -85,11 +85,11 @@ public class IdentityProxy implements CallBack {
     public void receiveNewAccessToken(String status, String message, Token token) {
         if (token != null) {
             if (Constants.DEBUG_ENABLED) {
-                Log.d(TAG, "Using Access Token: " + token.getAccessToken());
+                Log.i(TAG, "Using Access Token: " + token.getAccessToken());
             }
             IdentityProxy.token = token;
         } else {
-            Log.w(TAG, "Token is not renewed. Status: " + status);
+            Log.i(TAG, "Token is not renewed. Status: " + status);
         }
         tokenCallBack.onReceiveTokenResult(token, status, message);
     }
@@ -102,12 +102,16 @@ public class IdentityProxy implements CallBack {
      * @param context        - Application context.
      */
     public void init(CredentialInfo info, APIAccessCallBack apiAccessCallBack, Context context) {
+        String methodName = "init -> ";
         if (Constants.DEBUG_ENABLED) {
-            Log.d(TAG, "init");
+            Log.i(TAG, "init");
         }
         IdentityProxy.clientID = info.getClientID();
         IdentityProxy.clientSecret = info.getClientSecret();
         this.apiAccessCallBack = apiAccessCallBack;
+        Log.i(TAG, methodName+"Client ID: "+IdentityProxy.clientID);
+        Log.i(TAG, methodName+"Client Secret: "+IdentityProxy.clientSecret);
+        Log.i(TAG, methodName+"Access CallBack: "+this.apiAccessCallBack);
         //To avoid having multiple contexts from different threads
         if (this.context == null) {
             this.context = context;
@@ -126,26 +130,31 @@ public class IdentityProxy implements CallBack {
 
     public void requestToken(Context context, TokenCallBack tokenCallBack, String clientID,
                              String clientSecret) {
+        String methodName = "requestToken -> ";
         this.context = context;
         this.tokenCallBack = tokenCallBack;
         IdentityProxy.clientID = clientID;
         IdentityProxy.clientSecret = clientSecret;
         if (Constants.DEBUG_ENABLED) {
-            Log.d(TAG, "requestToken called.");
+            Log.i(TAG, "requestToken called.");
             if(IdentityProxy.clientID == null || IdentityProxy.clientSecret == null) {
-                Log.d(TAG, "Client credentials are null.");
+                Log.i(TAG, "Client credentials are null.");
+            } else if(IdentityProxy.clientID == null && IdentityProxy.clientSecret == null) {
+                Log.i(TAG, methodName+"Client ID: "+IdentityProxy.clientID);
+                Log.i(TAG, methodName+"Client Secret: "+IdentityProxy.clientSecret);
+                Log.i(TAG, methodName+"Token CallBack: "+this.tokenCallBack);
             }
         }
         if (token == null) {
             if (Constants.DEBUG_ENABLED) {
-                Log.d(TAG, "token is null.");
+                Log.i(TAG, "token is null.");
             }
             validateStoredToken();
         } else {
             boolean isExpired = ServerUtilities.isExpired(token.getExpiresOn());
             if (Constants.DEBUG_ENABLED) {
-                Log.d(TAG, "token is expired "+ isExpired);
-                Log.d(TAG, "token expiry "+ token.getExpiresOn().toString());
+                Log.i(TAG, "token is expired "+ isExpired);
+                Log.i(TAG, "token expiry "+ token.getExpiresOn().toString());
             }
             if (!isExpired) {
                 synchronized(this){
@@ -159,8 +168,9 @@ public class IdentityProxy implements CallBack {
     }
 
     private void validateStoredToken() {
+        String methodName = "validateStoredToken -> ";
         if (Constants.DEBUG_ENABLED) {
-            Log.d(TAG, "validateStoredToken.");
+            Log.i(TAG, "validateStoredToken.");
         }
         SharedPreferences mainPref = context.getSharedPreferences(Constants.APPLICATION_PACKAGE,
                 Context.MODE_PRIVATE);
@@ -172,7 +182,7 @@ public class IdentityProxy implements CallBack {
 
         if (refreshToken != null) {
             if (Constants.DEBUG_ENABLED) {
-                Log.d(TAG, "refreshToken is not empty.");
+                Log.i(TAG, "refreshToken is not empty.");
             }
             token = new Token();
             token.setExpiresOn(new Date(expiresOn));
@@ -181,7 +191,7 @@ public class IdentityProxy implements CallBack {
             boolean isExpired = ServerUtilities.isExpired(token.getExpiresOn());
             if (!isExpired) {
                 if (Constants.DEBUG_ENABLED) {
-                    Log.d(TAG, "stored token is not expired.");
+                    Log.i(TAG, "stored token is not expired.");
                 }
                 synchronized(this){
                     IdentityProxy.getInstance().receiveNewAccessToken(Constants.REQUEST_SUCCESSFUL,
@@ -190,13 +200,13 @@ public class IdentityProxy implements CallBack {
                 }
             } else {
                 if (Constants.DEBUG_ENABLED) {
-                    Log.d(TAG, "stored token is expired, refreshing");
+                    Log.i(TAG, "stored token is expired, refreshing");
                 }
                 refreshToken();
             }
         } else {
             if (Constants.DEBUG_ENABLED) {
-                Log.d(TAG, "refreshToken is empty.");
+                Log.i(TAG, "refreshToken is empty.");
             }
             synchronized(this){
                 IdentityProxy.getInstance().receiveNewAccessToken(Constants.ACCESS_FAILURE,
